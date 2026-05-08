@@ -1,26 +1,26 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\",
+  "WorkspaceRootPath": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:cube.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Texture.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:Texture.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:cube.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Texture.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:Texture.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{07556228-CC3E-4BA4-8DFE-594F7E2D00FA}|opengl.vcxproj|solutionrelative:cube.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,74 +30,67 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "cube.h",
-              "DocumentMoniker": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.h",
+              "DocumentMoniker": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.h",
               "RelativeDocumentMoniker": "cube.h",
-              "ToolTip": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.h",
+              "ToolTip": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.h",
               "RelativeToolTip": "cube.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2026-05-04T08:39:14.711Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "Camera.h",
-              "DocumentMoniker": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Camera.h",
+              "DocumentMoniker": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Camera.h",
               "RelativeDocumentMoniker": "Camera.h",
-              "ToolTip": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Camera.h",
+              "ToolTip": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Camera.h",
               "RelativeToolTip": "Camera.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-05-04T18:31:40.539Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+              "WhenOpened": "2026-05-04T18:31:40.539Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "Texture.h",
-              "DocumentMoniker": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Texture.h",
+              "DocumentMoniker": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Texture.h",
               "RelativeDocumentMoniker": "Texture.h",
-              "ToolTip": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Texture.h",
+              "ToolTip": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\Texture.h",
               "RelativeToolTip": "Texture.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-05-04T18:25:48.96Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-04T18:25:48.96Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "cube.cpp",
-              "DocumentMoniker": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.cpp",
+              "DocumentMoniker": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.cpp",
               "RelativeDocumentMoniker": "cube.cpp",
-              "ToolTip": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.cpp",
+              "ToolTip": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\cube.cpp",
               "RelativeToolTip": "cube.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABYAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-05-04T08:39:35.395Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "main.cpp",
-              "DocumentMoniker": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\main.cpp",
+              "DocumentMoniker": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\main.cpp",
               "RelativeDocumentMoniker": "main.cpp",
-              "ToolTip": "W:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\main.cpp",
+              "ToolTip": "C:\\Users\\Eryk\\Documents\\projekt_grafika\\src\\main.cpp",
               "RelativeToolTip": "main.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-05-04T08:36:51.908Z",
               "EditorCaption": ""

@@ -1,8 +1,2 @@
-﻿  Camera.cpp
-  cube.cpp
-  main.cpp
-  shaderClass.cpp
-  VBO.cpp
-  Generowanie kodu...
-  glad.c
-  opengl.vcxproj -> W:\Users\Eryk\Documents\projekt_grafika\src\x64\Debug\opengl.exe
+﻿  main.cpp
+  opengl.vcxproj -> C:\Users\Eryk\Documents\projekt_grafika\src\x64\Debug\opengl.exe
