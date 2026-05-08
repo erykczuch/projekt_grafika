@@ -1,6 +1,6 @@
 #include "cube.h"
 
-Cube::Cube(glm::vec3 pos, VAO* vaoPtr, Texture* t1, Texture* t2)
+Cube::Cube(glm::vec3 pos, VAO* vaoPtr, Texture* t1)
 {
 	position = pos;
 	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -8,7 +8,6 @@ Cube::Cube(glm::vec3 pos, VAO* vaoPtr, Texture* t1, Texture* t2)
 
 	vao = vaoPtr;
 	tex1 = t1;
-	tex2 = t2;
 }
 
 void Cube::Draw(Shader& shader)
@@ -26,27 +25,10 @@ void Cube::Draw(Shader& shader)
 
 	vao->Bind();
 
-	// for the full cube, one texture on a cube
 	if (tex1 != nullptr)
 	{
 		tex1->texUnit(shader, "tex0", 0);
 		tex1->Bind();
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	}
-
-	// for the second half of the cube, two textures on one cube
-	/*
-	if (tex1 != nullptr)
-	{
-		tex1->texUnit(shader, "tex0", 0);
-		tex1->Bind();
-		glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
-	}
-
-	if (tex2 != nullptr)
-	{
-		tex2->texUnit(shader, "tex0", 1);
-		tex2->Bind();
-		glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
-	}*/
 }

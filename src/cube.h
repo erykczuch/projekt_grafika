@@ -22,7 +22,7 @@ public:
 	Texture* tex1;
 	Texture* tex2;
 
-	Cube(glm::vec3 pos, VAO* vaoPtr, Texture* t1, Texture* t2);
+	Cube(glm::vec3 pos, VAO* vaoPtr, Texture* t1);
 
 	void Draw(Shader& shader);
 };
