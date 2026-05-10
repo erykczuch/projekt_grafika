@@ -9,15 +9,19 @@ out vec3 color;
 out vec2 texCoord;
 out vec3 Normal;
 out vec3 crntPos;
+out vec4 FragPosLightSpace;
 
 uniform mat4 camMatrix;
 uniform mat4 model;
+uniform mat4 lightSpaceMatrix;
 
 void main()
 {
     vec4 worldPos = model * vec4(aPos, 1.0);
     crntPos = worldPos.xyz;
     gl_Position = camMatrix * worldPos;
+    
+    FragPosLightSpace = lightSpaceMatrix * worldPos;
 
     color = aColor;
     texCoord = aTex;

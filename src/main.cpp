@@ -52,7 +52,7 @@ GLuint lightIndices[] =
 };
 
 // model / texture folder name
-const std::string mod_name = "shrek"; // now comes with donkey!
+const std::string mod_name = "shrek";
 
 int main()
 {
@@ -270,7 +270,31 @@ int main()
     lightPos.y = 0.0;
     lightPos.z = 0.0;
 
+    Shader shadowMapShader("shadowMap.vert", "shadowMap.frag");
 
+    const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+    GLuint depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+    
+    GLuint depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    shaderProgram.Activate();
+    glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 1);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -288,11 +312,38 @@ int main()
             lightpos_speed = -0.05;
         lightPos.y += lightpos_speed;*/
 
-        float radius = 3.0f;
+        float radius = 15.0f;
         glm::vec3 lightPos;
         lightPos.x = 0 + sin(time) * radius;
-        lightPos.y = 8 + 0.5f;
+        lightPos.y = 15 + 0.5f;
         lightPos.z = 6 + cos(time) * radius;
+
+        glm::mat4 model = glm::mat4(1.0f);
+
+        // 1. render depth of scene to texture (from light's perspective)
+        glm::mat4 lightProjection, lightView;
+        glm::mat4 lightSpaceMatrix;
+        float near_plane = 1.0f, far_plane = 25.0f;
+        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+        lightSpaceMatrix = lightProjection * lightView;
+
+        shadowMapShader.Activate();
+        glUniformMatrix4fv(glGetUniformLocation(shadowMapShader.ID, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shadowMapShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);
+        objVAO.Bind();
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 11);
+        glCullFace(GL_BACK);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // 2. render scene as normal using the generated depth/shadow map  
+        glViewport(0, 0, width, height);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shaderProgram.Activate();
         camera.Matrix(shaderProgram, "camMatrix");
@@ -302,21 +353,26 @@ int main()
 
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"),
             lightPos.x, lightPos.y, lightPos.z);
+            
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
-        shaderProgram.Activate();
         objVAO.Bind();
         
         if (!diffuseTextures.empty())
         {
+            glActiveTexture(GL_TEXTURE0);
             diffuseTextures[0].Bind();
         }
+        
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
 
-        glm::mat4 model = glm::mat4(1.0f);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"),
             1, GL_FALSE, glm::value_ptr(model));
 
         // glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
         glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 11);
+
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
 
