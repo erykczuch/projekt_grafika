@@ -1,8 +1,0 @@
-﻿  main.cpp
-W:\Users\Eryk\Documents\projekt_grafika\src\main.cpp(200,26): warning C4305: "inicjowanie": obcięcie z "double" do "float"
-W:\Users\Eryk\Documents\projekt_grafika\src\main.cpp(201,27): warning C4305: "inicjowanie": obcięcie z "double" do "float"
-W:\Users\Eryk\Documents\projekt_grafika\src\main.cpp(218,30): warning C4305: "=": obcięcie z "double" do "float"
-W:\Users\Eryk\Documents\projekt_grafika\src\main.cpp(220,30): warning C4305: "=": obcięcie z "double" do "float"
-W:\Users\Eryk\Documents\projekt_grafika\src\main.cpp(241,35): warning C4305: "=": obcięcie z "double" do "float"
-W:\Users\Eryk\Documents\projekt_grafika\src\main.cpp(243,35): warning C4305: "=": obcięcie z "double" do "float"
-  opengl.vcxproj -> W:\Users\Eryk\Documents\projekt_grafika\src\x64\Debug\opengl.exe
