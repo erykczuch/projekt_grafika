@@ -1,5 +1,7 @@
 #include "Model.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobjloader/tiny_obj_loader.h"
@@ -119,21 +121,32 @@ void Model::LoadModel(const std::string& modelName)
         }
     }
 
-    for (const auto& mat : materials)
+    std::string mtlPath = "../assets/textures/" + modelName + "/" + modelName + ".mtl";
+    std::ifstream mtlFile(mtlPath);
+    if (mtlFile.is_open())
     {
-        std::cout << "Diffuse texture: " << mat.diffuse_texname << std::endl;
-
-        if (!mat.diffuse_texname.empty())
+        std::string line;
+        while (std::getline(mtlFile, line))
         {
-            Texture tex(
-                ("../assets/textures/" + modelName + "/" + mat.diffuse_texname).c_str(),
-                GL_TEXTURE_2D,
-                GL_TEXTURE0,
-                GL_RGBA,
-                GL_UNSIGNED_BYTE
-            );
+            std::istringstream iss(line);
+            std::string token;
+            if (iss >> token && token == "map_Kd")
+            {
+                std::string texName;
+                if (iss >> texName)
+                {
+                    std::cout << "Diffuse texture (from " << modelName << ".mtl): " << texName << std::endl;
+                    Texture tex(
+                        ("../assets/textures/" + modelName + "/" + texName).c_str(),
+                        GL_TEXTURE_2D,
+                        GL_TEXTURE0,
+                        GL_RGBA,
+                        GL_UNSIGNED_BYTE
+                    );
 
-            diffuseTextures.push_back(std::move(tex));
+                    diffuseTextures.push_back(std::move(tex));
+                }
+            }
         }
     }
 }

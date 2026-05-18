@@ -50,6 +50,7 @@ GLuint lightIndices[] =
 
 // model / texture folder name
 const std::string nail_mod = "nail";
+const std::string plank_mod = "wooden_plank";
 
 
 bool animation_start = false;
@@ -73,7 +74,8 @@ int main()
     gladLoadGL();
     glViewport(0, 0, width, height);
 
-    Model myModel(nail_mod, glm::vec3(0.0f, 0.0f, 0.0f));
+    Model nailModel(nail_mod, glm::vec3(0.0f, 1.0f, 0.0f));
+    Model plankModel(plank_mod, glm::vec3(0.0f, -1.0f, 0.0f));
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -125,6 +127,9 @@ int main()
     Camera camera(width, height, glm::vec3(0.0f, 3.0f, 12.0f));
     glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"),
         camera.Position.x, camera.Position.y, camera.Position.z);
+
+    camera.Position = glm::vec3(-4.89307, 13.5829, 17.5357);
+    camera.Orientation = glm::vec3(0.377616, -0.382683, -0.843183);
 
     /*Texture cat("../assets/textures/funnycat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     cat.Bind();
@@ -208,8 +213,9 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_FRONT);
-        
-        myModel.DrawDepth(shadowMapShader);
+
+        nailModel.DrawDepth(shadowMapShader);
+        plankModel.DrawDepth(shadowMapShader);
         
         glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -229,17 +235,22 @@ int main()
             
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
-        myModel.Draw(shaderProgram, camera, depthMap);
+
+        // nail
+        nailModel.Draw(shaderProgram, camera, depthMap);
         if (animation_start)
         {
-            if (myModel.position.y >= 0)
+            if (nailModel.position.y >= 1)
                 nail_speed = -0.05;
-            else if (myModel.position.y <= -2)
+            else if (nailModel.position.y <= -3.5)
                 nail_speed = 0.05;
         }
 
-		myModel.position.y += nail_speed;
+        nailModel.position.y += nail_speed;
 			
+
+        // wooden plank
+        plankModel.Draw(shaderProgram, camera, depthMap);
 
 
         lightShader.Activate();
@@ -257,10 +268,10 @@ int main()
         glfwPollEvents();
     }
 
-    myModel.Destroy();
+    nailModel.Destroy();
+    plankModel.Destroy();
 
     shaderProgram.Delete();
-    //cat.Delete();
 
     glfwDestroyWindow(window);
     glfwTerminate();
