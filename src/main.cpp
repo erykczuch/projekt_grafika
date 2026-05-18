@@ -10,18 +10,15 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "cube.h"
+#include "Model.h"
+#include "inputHandling.h"
 
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
 
-#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
-// Optional. define TINYOBJLOADER_USE_MAPBOX_EARCUT gives robust triangulation. Requires C++11
-//#define TINYOBJLOADER_USE_MAPBOX_EARCUT
-#include "tinyobjloader/tiny_obj_loader.h"
-
-int width = 1200;
-int height = 800;
+int width = 800;
+int height = 480;
 
 GLfloat lightVertices[] =
 {    // COORDINATES //
@@ -52,105 +49,13 @@ GLuint lightIndices[] =
 };
 
 // model / texture folder name
-const std::string mod_name = "shrek";
+const std::string nail_mod = "nail";
+
+
+bool animation_start = false;
 
 int main()
 {
-    std::string inputfile = "../assets/models/" + mod_name + ".obj";
-    tinyobj::ObjReaderConfig reader_config;
-    reader_config.mtl_search_path = "../assets/textures/" + mod_name + "/"; // Path to material files, only uses one texture
-
-    tinyobj::ObjReader reader;
-
-    if (!reader.ParseFromFile(inputfile, reader_config)) {
-        if (!reader.Error().empty()) {
-            std::cerr << "TinyObjReader: " << reader.Error();
-        }
-        exit(1);
-    }
-
-    if (!reader.Warning().empty()) {
-        std::cout << "TinyObjReader: " << reader.Warning();
-    }
-
-    auto& attrib = reader.GetAttrib();
-    auto& shapes = reader.GetShapes();
-    auto& materials = reader.GetMaterials();
-    std::vector<float> vertices;
-    std::vector<unsigned int> indices;
-
-    for (const auto& shape : shapes)
-    {
-        size_t index_offset = 0;
-
-        for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); f++)
-        {
-            size_t fv = shape.mesh.num_face_vertices[f];
-
-            std::vector<glm::vec3> facePos(fv);
-
-            // STEP 1: collect vertices first
-            for (size_t v = 0; v < fv; v++)
-            {
-                tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
-
-                facePos[v] = glm::vec3(
-                    attrib.vertices[3 * idx.vertex_index + 0],
-                    attrib.vertices[3 * idx.vertex_index + 1],
-                    attrib.vertices[3 * idx.vertex_index + 2]
-                );
-            }
-
-            // STEP 2: compute normal once per face
-            glm::vec3 normal(0.0f);
-
-            if (fv >= 3)
-            {
-                glm::vec3 a = facePos[0];
-                glm::vec3 b = facePos[1];
-                glm::vec3 c = facePos[2];
-
-                normal = glm::normalize(glm::cross(b - a, c - a));
-            }
-
-            // STEP 3: now emit vertices
-            for (size_t v = 0; v < fv; v++)
-            {
-                tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
-
-                glm::vec3 pos = facePos[v];
-
-                glm::vec2 uv(0.0f);
-                if (idx.texcoord_index >= 0)
-                {
-                    uv = glm::vec2(
-                        attrib.texcoords[2 * idx.texcoord_index + 0],
-                        attrib.texcoords[2 * idx.texcoord_index + 1]
-                    );
-                }
-
-                vertices.push_back(pos.x);
-                vertices.push_back(pos.y);
-                vertices.push_back(pos.z);
-
-                vertices.push_back(1.0f);
-                vertices.push_back(1.0f);
-                vertices.push_back(1.0f);
-
-                vertices.push_back(uv.x);
-                vertices.push_back(uv.y);
-
-                vertices.push_back(normal.x);
-                vertices.push_back(normal.y);
-                vertices.push_back(normal.z);
-
-                indices.push_back(static_cast<unsigned int>(index_offset + v));
-            }
-
-            index_offset += fv;
-        }
-    }
-
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -168,53 +73,14 @@ int main()
     gladLoadGL();
     glViewport(0, 0, width, height);
 
-    std::vector<Texture> diffuseTextures;
-
-    for (const auto& mat : materials)
-    {
-        std::cout << "Diffuse texture: " << mat.diffuse_texname << std::endl;
-
-        if (!mat.diffuse_texname.empty())
-        {
-            Texture tex(
-                ("../assets/textures/" + mod_name  + "/" + mat.diffuse_texname).c_str(),
-                GL_TEXTURE_2D,
-                GL_TEXTURE0,
-                GL_RGBA,
-                GL_UNSIGNED_BYTE
-            );
-
-            diffuseTextures.push_back(std::move(tex));
-        }
-    }
+    Model myModel(nail_mod, glm::vec3(0.0f, 0.0f, 0.0f));
 
     glEnable(GL_DEPTH_TEST);
-    /*glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);*/
-    /*glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE);
-    glDisable(GL_CULL_FACE);*/
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
     Shader shaderProgram("default.vert", "default.frag");
-
-    VAO objVAO;
-    objVAO.Bind();
-
-    VBO objVBO(vertices.data(), vertices.size() * sizeof(float));
-    //EBO objEBO(indices.data(), indices.size() * sizeof(unsigned int));
-
-    objVAO.LinkAttrib(objVBO, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-    objVAO.LinkAttrib(objVBO, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-    objVAO.LinkAttrib(objVBO, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-    objVAO.LinkAttrib(objVBO, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-
-    objVAO.Unbind();
-    objVBO.Unbind();
-    //objEBO.Unbind();
 
     Shader lightShader("light.vert", "light.frag");
     VAO lightVAO;
@@ -254,7 +120,9 @@ int main()
     glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x,
         lightPos.y, lightPos.z);
 
-    Camera camera(width, height, glm::vec3(0.0f, 0.0f, 3.0f));
+    Handler handler;
+
+    Camera camera(width, height, glm::vec3(0.0f, 3.0f, 12.0f));
     glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"),
         camera.Position.x, camera.Position.y, camera.Position.z);
 
@@ -296,10 +164,14 @@ int main()
     shaderProgram.Activate();
     glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 1);
 
+    float nail_speed = 0.0;
+
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        handler.Inputs(window, &animation_start);
 
         camera.Inputs(window);
         camera.updateMatrix(45.0f, 0.1f, 100.0f);
@@ -336,8 +208,9 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_FRONT);
-        objVAO.Bind();
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 11);
+        
+        myModel.DrawDepth(shadowMapShader);
+        
         glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -356,22 +229,18 @@ int main()
             
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
-        objVAO.Bind();
-        
-        if (!diffuseTextures.empty())
+        myModel.Draw(shaderProgram, camera, depthMap);
+        if (animation_start)
         {
-            glActiveTexture(GL_TEXTURE0);
-            diffuseTextures[0].Bind();
+            if (myModel.position.y >= 0)
+                nail_speed = -0.05;
+            else if (myModel.position.y <= -2)
+                nail_speed = 0.05;
         }
-        
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
 
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"),
-            1, GL_FALSE, glm::value_ptr(model));
+		myModel.position.y += nail_speed;
+			
 
-        // glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 11);
 
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
@@ -388,9 +257,7 @@ int main()
         glfwPollEvents();
     }
 
-    objVAO.Delete();
-    objVBO.Delete();
-    //objEBO.Delete();
+    myModel.Destroy();
 
     shaderProgram.Delete();
     //cat.Delete();

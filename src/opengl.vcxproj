@@ -145,7 +145,9 @@
     <ClCompile Include="cube.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="inputHandling.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -156,6 +158,8 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="cube.h" />
     <ClInclude Include="EBO.h" />
+    <ClInclude Include="inputHandling.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="shaderClass.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VAO.h" />

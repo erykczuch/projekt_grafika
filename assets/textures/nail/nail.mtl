@@ -1,0 +1,3 @@
+
+newmtl metal
+	map_Kd metal_texture.png
