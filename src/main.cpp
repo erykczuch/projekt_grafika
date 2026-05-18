@@ -51,6 +51,7 @@ GLuint lightIndices[] =
 // model / texture folder name
 const std::string nail_mod = "nail";
 const std::string plank_mod = "wooden_plank";
+const std::string garden_plane = "garden";
 
 
 bool animation_start = false;
@@ -74,8 +75,11 @@ int main()
     gladLoadGL();
     glViewport(0, 0, width, height);
 
-    Model nailModel(nail_mod, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    // models creation
+    Model nailModel(nail_mod, glm::vec3(-2.5f, 1.0f, 0.0f));
     Model plankModel(plank_mod, glm::vec3(0.0f, -1.0f, 0.0f));
+    Model gardenPlane(garden_plane, glm::vec3(15.0f, -5.0f, -30.0f));
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -129,7 +133,7 @@ int main()
         camera.Position.x, camera.Position.y, camera.Position.z);
 
     camera.Position = glm::vec3(-4.89307, 13.5829, 17.5357);
-    camera.Orientation = glm::vec3(0.377616, -0.382683, -0.843183);
+    camera.Orientation = glm::vec3(0.25178, -0.335177, -0.907886);
 
     /*Texture cat("../assets/textures/funnycat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     cat.Bind();
@@ -216,6 +220,7 @@ int main()
 
         nailModel.DrawDepth(shadowMapShader);
         plankModel.DrawDepth(shadowMapShader);
+        gardenPlane.DrawDepth(shadowMapShader);
         
         glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -253,6 +258,10 @@ int main()
         plankModel.Draw(shaderProgram, camera, depthMap);
 
 
+        // garden
+        gardenPlane.Draw(shaderProgram, camera, depthMap);
+        
+
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
 
@@ -270,7 +279,8 @@ int main()
 
     nailModel.Destroy();
     plankModel.Destroy();
-
+    gardenPlane.Destroy();
+    
     shaderProgram.Delete();
 
     glfwDestroyWindow(window);
