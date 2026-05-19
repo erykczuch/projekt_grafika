@@ -52,6 +52,7 @@ GLuint lightIndices[] =
 const std::string nail_mod = "nail";
 const std::string plank_mod = "wooden_plank";
 const std::string garden_plane = "garden";
+const std::string hammer_mod = "hammer";
 
 
 bool animation_start = false;
@@ -76,10 +77,14 @@ int main()
     glViewport(0, 0, width, height);
 
 
-    // models creation
+    // objects
     Model nailModel[2] = { Model(nail_mod, glm::vec3(-2.5f, 1.0f, 0.0f)), Model(nail_mod, glm::vec3(30.0f, 1.0f, 0.0f)) };  // two nails
     Model plankModel(plank_mod, glm::vec3(0.0f, -1.0f, 0.0f));                                                              // wooden plank
-	Model gardenPlane(garden_plane, glm::vec3(40.0f, -25.0f, -80.0f), glm::vec3(2.2f, 2.2f, 1.0f));         			    // garden background
+    Model gardenPlane(garden_plane, glm::vec3(20.0f, -18.0f, -80.0f), glm::vec3(2.2f, 2.2f, 1.0f));         			    // garden background
+    Model hammerModel(hammer_mod, glm::vec3(-2.5f, 4.35f, -15.0f));         			                                    // hammmer
+
+    plankModel.scale = glm::vec3(2.0f, 1.0f, 1.1f);
+    gardenPlane.rotation.y = -20.0f;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -132,8 +137,8 @@ int main()
     glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"),
         camera.Position.x, camera.Position.y, camera.Position.z);
 
-    camera.Position = glm::vec3(-4.89307, 13.5829, 17.5357);
-    camera.Orientation = glm::vec3(0.25178, -0.335177, -0.907886);
+    camera.Position = glm::vec3(-17.4337, 14.9026, 21.7259);
+    camera.Orientation = glm::vec3(0.33191, -0.216439, -0.91814);
 
     float lightpos_speed = 0.1;
     float cube_anim_speed = 0.01;
@@ -168,13 +173,19 @@ int main()
     shaderProgram.Activate();
     glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 1);
 
-    float light_speed = 0.05;
+    float light_speed = 0.01;
     float nail_speed = 0.0;
     bool stop_anim_help[3] = { true, true, true };
     float plank_tex_offset = 0.0;
     float plank_speed = 0.0;
     int nail_num1 = 0;
     int nail_num2 = 1;
+    float hammer_speed = 0.0;
+    bool nail_anim_start = false;
+    bool hammer_anim_stop = false;
+    int hit_num = 0;
+    bool can_hit = true;
+    bool plank_moving = false;
 
     // Adjustable variables for shadow range and viewing boundaries
     float shadow_range = 25.0f;
@@ -186,18 +197,18 @@ int main()
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        handler.Inputs(window, &animation_start);
+        handler.Inputs(window, &animation_start, can_hit);
 
         camera.Inputs(window);
         camera.updateMatrix(45.0f, 0.1f, 200.0f);
 
         float time = (float)glfwGetTime();
 
-        float radius = 20.0f;
+        float radius = -20.0f;
         glm::vec3 lightPos;
-        lightPos.y = 2 + sin(time * light_speed) * radius;
+        lightPos.y = 6 + sin(-time * light_speed) * radius;
         lightPos.z = 4 + 0.5f;
-        lightPos.x = -2.5 + cos(time * light_speed) * radius;
+        lightPos.x = -2.5 + cos(-time * light_speed) * radius;
 
         glm::mat4 model = glm::mat4(1.0f);
 
@@ -228,6 +239,7 @@ int main()
         nailModel[1].DrawDepth(shadowMapShader);
         plankModel.DrawDepth(shadowMapShader);
         gardenPlane.DrawDepth(shadowMapShader);
+        hammerModel.DrawDepth(shadowMapShader);
 
         glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -255,28 +267,25 @@ int main()
 
 
         // hitting the nail animation
-        if (animation_start)
+        if (nail_anim_start)
+            nail_speed = -0.5;
+        if (nailModel[nail_num1].position.y <= 0 && stop_anim_help[0])
         {
-            if (animation_start)
-                nail_speed = -0.05;
-            if (nailModel[nail_num1].position.y <= 0 && stop_anim_help[0])
-            {
-                nail_speed = 0.0;
-                animation_start = false;
-                stop_anim_help[0] = false;
-            }
-            if (nailModel[nail_num1].position.y <= -1.5 && stop_anim_help[1])
-            {
-                nail_speed = 0.0;
-                animation_start = false;
-                stop_anim_help[1] = false;
-            }
-            if (nailModel[nail_num1].position.y <= -3.5 && stop_anim_help[2])
-            {
-                nail_speed = 0.0;
-                animation_start = false;
-                stop_anim_help[2] = false;
-            }
+            nail_speed = 0.0;
+            nail_anim_start = false;
+            stop_anim_help[0] = false;
+        }
+        if (nailModel[nail_num1].position.y <= -1.5 && stop_anim_help[1])
+        {
+            nail_speed = 0.0;
+            nail_anim_start = false;
+            stop_anim_help[1] = false;
+        }
+        if (nailModel[nail_num1].position.y <= -3.4 && stop_anim_help[2])
+        {
+            nail_speed = 0.0;
+            nail_anim_start = false;
+            stop_anim_help[2] = false;
         }
 
         if (!stop_anim_help[0] && !stop_anim_help[1] && !stop_anim_help[2])
@@ -289,24 +298,30 @@ int main()
         nailModel[nail_num1].position.y += nail_speed;
 
         float nail_last_pos = nailModel[nail_num2].position.x;
+
         // nail moving animation + wooden plank animation speed
-        if (nailModel[nail_num1].position.y <= -3.5 && nailModel[nail_num2].position.x >= -2.5)
+        if (nailModel[nail_num1].position.y <= -3.4 && nailModel[nail_num2].position.x >= -2.5)
         {
             nailModel[nail_num1].position.x -= 0.1;
             nailModel[nail_num2].position.x -= 0.1;
-            plank_speed = 0.0019;
+            plank_speed = 0.00095;
+            plank_moving = true;
         }
 
-        // wooden plank
-        // texture animation + changing nails
+        // changing nails
         if (nailModel[nail_num2].position.x <= -2.5)
         {
-		    nailModel[nail_num1].position = glm::vec3(30.0f, 1.0f, 0.0f);
+            nailModel[nail_num1].position = glm::vec3(30.0f, 1.0f, 0.0f);
             int nail_change_num = nail_num1;
             nail_num1 = nail_num2;
             nail_num2 = nail_change_num;
+            plank_moving = false;
+            //hit_num = -1;
         }
 
+        // wooden plank
+
+		// plank texture animation
         if(abs(nail_last_pos - nailModel[nail_num2].position.x) == 0)
             plank_speed = 0.0;
 
@@ -322,7 +337,79 @@ int main()
         // garden
         gardenPlane.Draw(shaderProgram, camera, depthMap);
 
+        // hammer
+        hammerModel.Draw(shaderProgram, camera, depthMap);
+        
 
+        if (animation_start && can_hit)
+        {
+            hammer_speed = 1.6;
+            switch (hit_num)
+            {
+                case 0:
+                {
+                    if (hammerModel.rotation.x >= 72.0f)
+                    {
+                        nail_anim_start = true;
+                    }
+                    if (hammerModel.rotation.x >= 76.0f)
+                    {
+                        hammer_speed = -1.0;
+                        hammer_anim_stop = true;
+                        animation_start = false;
+                        nail_anim_start = false;
+                        can_hit = false;
+                    }
+                    break;
+                }
+                case 1:
+                {
+                    if (hammerModel.rotation.x >= 76.0f)
+                        nail_anim_start = true;
+                    if (hammerModel.rotation.x >= 82.2f)
+                    {
+                        hammer_speed = -1.0;
+                        hammer_anim_stop = true;
+                        animation_start = false;
+                        nail_anim_start = false;
+                        can_hit = false;
+                    }
+                    break;
+                }
+                case 2:
+                {
+                    if (hammerModel.rotation.x >= 82.2f)
+                        nail_anim_start = true;
+                    if (hammerModel.rotation.x >= 91.0f)
+                    {
+                        hammer_speed = -1.0;
+                        hammer_anim_stop = true;
+                        animation_start = false;
+                        nail_anim_start = false;
+                        can_hit = false;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (hammerModel.rotation.x <= 0.0 && hammer_anim_stop)
+        {
+            hammer_speed = 0.0;
+            if(!plank_moving)
+            {
+                hit_num += 1;
+                if (hit_num == 3)
+                    hit_num = 0;
+            }
+            if (nailModel[nail_num1].position.y > -3.4 && nailModel[nail_num2].position.x > 29.9)
+            {
+                hammer_anim_stop = false;
+                can_hit = true;
+            }
+        }
+
+        hammerModel.rotation.x += hammer_speed;
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
 
@@ -332,7 +419,7 @@ int main()
             1, GL_FALSE, glm::value_ptr(lightModel));
 
         lightVAO.Bind();
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -342,6 +429,7 @@ int main()
     nailModel[1].Destroy();
     plankModel.Destroy();
     gardenPlane.Destroy();
+    hammerModel.Destroy();
 
     shaderProgram.Delete();
 

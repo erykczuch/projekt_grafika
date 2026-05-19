@@ -5,14 +5,17 @@ Handler::Handler()
 {
 }
 
-void Handler::Inputs(GLFWwindow* window, bool* animation_start)
+void Handler::Inputs(GLFWwindow* window, bool* animation_start, bool can_hit)
 {
 	// handles keys input
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && not_pressed)
 	{
-		std::cout << "Klawisz E" << std::endl;;
-		*animation_start = true;
-		not_pressed = false;
+		//std::cout << "Klawisz E" << std::endl;;
+		if(can_hit)
+		{
+			*animation_start = true;
+			not_pressed = false;
+		}
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE && !not_pressed)

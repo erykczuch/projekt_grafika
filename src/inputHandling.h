@@ -16,7 +16,7 @@ public:
 	Handler();
 
 	bool firstClick = true;
-	void Inputs(GLFWwindow* window, bool*);
+	void Inputs(GLFWwindow* window, bool*, bool);
 
 private:
 	bool not_pressed = true;

@@ -10,6 +10,8 @@ Model::Model(const std::string& modelName, const glm::vec3& position, const glm:
 {
     this->position = position;
     this->scale = scale;
+	this->rotation = glm::vec3(0.0f);
+
     this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
     this->modelMatrix = glm::scale(modelMatrix, scale);
     
@@ -174,6 +176,11 @@ void Model::DrawDepth(Shader& shadowMapShader)
     modelMatrix = glm::mat4(1.0f);
 
     modelMatrix = glm::translate(modelMatrix, position);
+
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0, 0, 1));
+
     modelMatrix = glm::scale(modelMatrix, scale);
 
     glUniformMatrix4fv(
@@ -196,6 +203,11 @@ void Model::Draw(Shader& shader, Camera& camera, GLuint depthMap)
     modelMatrix = glm::mat4(1.0f);
 
     modelMatrix = glm::translate(modelMatrix, position);
+
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0, 0, 1));
+
     modelMatrix = glm::scale(modelMatrix, scale);
 
     glUniformMatrix4fv(

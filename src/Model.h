@@ -26,6 +26,7 @@ public:
 
     glm::vec3 position;
     glm::vec3 scale;
+    glm::vec3 rotation;     // in degrees
     glm::mat4 modelMatrix;
 
 private:
