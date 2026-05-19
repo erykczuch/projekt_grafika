@@ -17,7 +17,7 @@
 
 class Model {
 public:
-    Model(const std::string& modelName, const glm::vec3& position = glm::vec3(0.0f));
+    Model(const std::string& modelName, const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& scale = glm::vec3(1.0f));
     ~Model();
 
     void Draw(Shader& shader, Camera& camera, GLuint depthMap);
@@ -25,6 +25,7 @@ public:
     void Destroy();
 
     glm::vec3 position;
+    glm::vec3 scale;
     glm::mat4 modelMatrix;
 
 private:

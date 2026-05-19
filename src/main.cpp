@@ -77,9 +77,9 @@ int main()
 
 
     // models creation
-    Model nailModel(nail_mod, glm::vec3(-2.5f, 1.0f, 0.0f));
-    Model plankModel(plank_mod, glm::vec3(0.0f, -1.0f, 0.0f));
-    Model gardenPlane(garden_plane, glm::vec3(15.0f, -5.0f, -30.0f));
+    Model nailModel[2] = { Model(nail_mod, glm::vec3(-2.5f, 1.0f, 0.0f)), Model(nail_mod, glm::vec3(30.0f, 1.0f, 0.0f)) };  // two nails
+    Model plankModel(plank_mod, glm::vec3(0.0f, -1.0f, 0.0f));                                                              // wooden plank
+	Model gardenPlane(garden_plane, glm::vec3(40.0f, -25.0f, -80.0f), glm::vec3(2.2f, 2.2f, 1.0f));         			    // garden background
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -135,16 +135,11 @@ int main()
     camera.Position = glm::vec3(-4.89307, 13.5829, 17.5357);
     camera.Orientation = glm::vec3(0.25178, -0.335177, -0.907886);
 
-    /*Texture cat("../assets/textures/funnycat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-    cat.Bind();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);*/
-
     float lightpos_speed = 0.1;
     float cube_anim_speed = 0.01;
 
-    lightPos.x = 0.0;
-    lightPos.y = 0.0;
+    lightPos.x = -20.0;
+    lightPos.y = 2.0;
     lightPos.z = 0.0;
 
     Shader shadowMapShader("shadowMap.vert", "shadowMap.frag");
@@ -152,7 +147,7 @@ int main()
     const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
     GLuint depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
-    
+
     GLuint depthMap;
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
@@ -163,7 +158,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    
+
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
     glDrawBuffer(GL_NONE);
@@ -173,7 +168,14 @@ int main()
     shaderProgram.Activate();
     glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 1);
 
+    float light_speed = 0.05;
     float nail_speed = 0.0;
+    bool stop_anim_help[3] = { true, true, true };
+    float plank_tex_offset = 0.0;
+    float plank_speed = 0.0;
+    int nail_num1 = 0;
+    int nail_num2 = 1;
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -183,21 +185,15 @@ int main()
         handler.Inputs(window, &animation_start);
 
         camera.Inputs(window);
-        camera.updateMatrix(45.0f, 0.1f, 100.0f);
+        camera.updateMatrix(45.0f, 0.1f, 200.0f);
 
         float time = (float)glfwGetTime();
 
-        /*if (lightPos.y <= -4.0)
-            lightpos_speed = 0.05;
-        if (lightPos.y >= 4.0)
-            lightpos_speed = -0.05;
-        lightPos.y += lightpos_speed;*/
-
-        float radius = 15.0f;
+        float radius = 20.0f;
         glm::vec3 lightPos;
-        lightPos.x = 0 + sin(time) * radius;
-        lightPos.y = 15 + 0.5f;
-        lightPos.z = 6 + cos(time) * radius;
+        lightPos.y = 2 + sin(time * light_speed) * radius;
+        lightPos.z = 4 + 0.5f;
+        lightPos.x = -2.5 + cos(time * light_speed) * radius;
 
         glm::mat4 model = glm::mat4(1.0f);
 
@@ -218,10 +214,11 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_FRONT);
 
-        nailModel.DrawDepth(shadowMapShader);
+        nailModel[0].DrawDepth(shadowMapShader);
+        nailModel[1].DrawDepth(shadowMapShader);
         plankModel.DrawDepth(shadowMapShader);
         gardenPlane.DrawDepth(shadowMapShader);
-        
+
         glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -237,30 +234,81 @@ int main()
 
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"),
             lightPos.x, lightPos.y, lightPos.z);
-            
+
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
+        glUniform2f(glGetUniformLocation(shaderProgram.ID, "texOffset"), 0.0f, 0.0f);
 
-        // nail
-        nailModel.Draw(shaderProgram, camera, depthMap);
+        // nails
+        nailModel[0].Draw(shaderProgram, camera, depthMap);
+        nailModel[1].Draw(shaderProgram, camera, depthMap);
+
+
+        // hitting the nail animation
         if (animation_start)
         {
-            if (nailModel.position.y >= 1)
+            if (animation_start)
                 nail_speed = -0.05;
-            else if (nailModel.position.y <= -3.5)
-                nail_speed = 0.05;
+            if (nailModel[nail_num1].position.y <= 0 && stop_anim_help[0])
+            {
+                nail_speed = 0.0;
+                animation_start = false;
+                stop_anim_help[0] = false;
+            }
+            if (nailModel[nail_num1].position.y <= -1.5 && stop_anim_help[1])
+            {
+                nail_speed = 0.0;
+                animation_start = false;
+                stop_anim_help[1] = false;
+            }
+            if (nailModel[nail_num1].position.y <= -3.5 && stop_anim_help[2])
+            {
+                nail_speed = 0.0;
+                animation_start = false;
+                stop_anim_help[2] = false;
+            }
         }
 
-        nailModel.position.y += nail_speed;
-			
+        if (!stop_anim_help[0] && !stop_anim_help[1] && !stop_anim_help[2])
+        {
+            stop_anim_help[0] = true;
+            stop_anim_help[1] = true;
+            stop_anim_help[2] = true;
+        }
+
+        nailModel[nail_num1].position.y += nail_speed;
+
+        // nail moving animation + wooden plank animation speed
+        if (nailModel[nail_num1].position.y <= -3.5 && nailModel[nail_num2].position.x >= -2.5)
+        {
+            nailModel[nail_num1].position.x -= 0.1;
+            nailModel[nail_num2].position.x -= 0.1;
+            plank_speed = 0.0019;
+        }
+
 
         // wooden plank
+        // texture animation + changing nails
+        if (nailModel[nail_num2].position.x <= -2.5)
+        {
+			plank_speed = 0.0;
+            nailModel[nail_num1].position = glm::vec3(30.0f, 1.0f, 0.0f);
+            int nail_change_num = nail_num1;
+            nail_num1 = nail_num2;
+            nail_num2 = nail_change_num;
+        }
+
+        plank_tex_offset += plank_speed;
+
+        glUniform2f(glGetUniformLocation(shaderProgram.ID, "texOffset"), plank_tex_offset, 0.0f); // texture animation
+
         plankModel.Draw(shaderProgram, camera, depthMap);
+        glUniform2f(glGetUniformLocation(shaderProgram.ID, "texOffset"), 0.0f, 0.0f); // prevents affecting other objects
 
 
         // garden
         gardenPlane.Draw(shaderProgram, camera, depthMap);
-        
+
 
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
@@ -277,10 +325,11 @@ int main()
         glfwPollEvents();
     }
 
-    nailModel.Destroy();
+    nailModel[0].Destroy();
+    nailModel[1].Destroy();
     plankModel.Destroy();
     gardenPlane.Destroy();
-    
+
     shaderProgram.Delete();
 
     glfwDestroyWindow(window);

@@ -14,6 +14,7 @@ out vec4 FragPosLightSpace;
 uniform mat4 camMatrix;
 uniform mat4 model;
 uniform mat4 lightSpaceMatrix;
+uniform vec2 texOffset;
 
 void main()
 {
@@ -24,7 +25,7 @@ void main()
     FragPosLightSpace = lightSpaceMatrix * worldPos;
 
     color = aColor;
-    texCoord = aTex;
+    texCoord = aTex + texOffset;
 
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     Normal = normalize(normalMatrix * aNormal);

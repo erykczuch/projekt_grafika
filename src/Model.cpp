@@ -6,10 +6,12 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobjloader/tiny_obj_loader.h"
 
-Model::Model(const std::string& modelName, const glm::vec3& position)
+Model::Model(const std::string& modelName, const glm::vec3& position, const glm::vec3& scale)
 {
     this->position = position;
+    this->scale = scale;
     this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
+    this->modelMatrix = glm::scale(modelMatrix, scale);
     
     LoadModel(modelName);
     SetupMesh();
@@ -169,7 +171,18 @@ void Model::SetupMesh()
 
 void Model::DrawDepth(Shader& shadowMapShader)
 {
-    glUniformMatrix4fv(glGetUniformLocation(shadowMapShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+    modelMatrix = glm::mat4(1.0f);
+
+    modelMatrix = glm::translate(modelMatrix, position);
+    modelMatrix = glm::scale(modelMatrix, scale);
+
+    glUniformMatrix4fv(
+        glGetUniformLocation(shadowMapShader.ID, "model"),
+        1,
+        GL_FALSE,
+        glm::value_ptr(modelMatrix)
+    );
+
     vao->Bind();
     glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 11);
     vao->Unbind();
@@ -180,7 +193,10 @@ void Model::Draw(Shader& shader, Camera& camera, GLuint depthMap)
     shader.Activate();
 
     // Update model matrix from current position
-    modelMatrix = glm::translate(glm::mat4(1.0f), position);
+    modelMatrix = glm::mat4(1.0f);
+
+    modelMatrix = glm::translate(modelMatrix, position);
+    modelMatrix = glm::scale(modelMatrix, scale);
 
     glUniformMatrix4fv(
         glGetUniformLocation(shader.ID, "model"),
