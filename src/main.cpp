@@ -176,6 +176,10 @@ int main()
     int nail_num1 = 0;
     int nail_num2 = 1;
 
+    // Adjustable variables for shadow range and viewing boundaries
+    float shadow_range = 25.0f;
+    float near_plane = 1.0f;
+    float far_plane = 75.0f;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -200,8 +204,14 @@ int main()
         // 1. render depth of scene to texture (from light's perspective)
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
-        float near_plane = 1.0f, far_plane = 25.0f;
-        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+
+        // Allow changing shadow range using left and right arrow keys
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            shadow_range += 0.5f;
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            shadow_range -= 0.5f;
+
+        lightProjection = glm::ortho(-shadow_range, shadow_range, -shadow_range, shadow_range, near_plane, far_plane);
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
 
@@ -278,6 +288,7 @@ int main()
 
         nailModel[nail_num1].position.y += nail_speed;
 
+        float nail_last_pos = nailModel[nail_num2].position.x;
         // nail moving animation + wooden plank animation speed
         if (nailModel[nail_num1].position.y <= -3.5 && nailModel[nail_num2].position.x >= -2.5)
         {
@@ -286,17 +297,19 @@ int main()
             plank_speed = 0.0019;
         }
 
-
         // wooden plank
         // texture animation + changing nails
         if (nailModel[nail_num2].position.x <= -2.5)
         {
-			plank_speed = 0.0;
-            nailModel[nail_num1].position = glm::vec3(30.0f, 1.0f, 0.0f);
+		    nailModel[nail_num1].position = glm::vec3(30.0f, 1.0f, 0.0f);
             int nail_change_num = nail_num1;
             nail_num1 = nail_num2;
             nail_num2 = nail_change_num;
         }
+
+        if(abs(nail_last_pos - nailModel[nail_num2].position.x) == 0)
+            plank_speed = 0.0;
+
 
         plank_tex_offset += plank_speed;
 
