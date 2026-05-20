@@ -441,7 +441,7 @@ int main()
             1, GL_FALSE, glm::value_ptr(lightModel));
 
         lightVAO.Bind();
-        //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

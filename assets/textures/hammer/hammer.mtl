@@ -1,3 +1,5 @@
 
 newmtl hammer
+	Ns 10.000000
+	Ks 0.800000 0.800000 0.800000
 	map_Kd hammer.png

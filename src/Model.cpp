@@ -11,6 +11,9 @@ Model::Model(const std::string& modelName, const glm::vec3& position, const glm:
     this->position = position;
     this->scale = scale;
 	this->rotation = glm::vec3(0.0f);
+    
+    this->shininess = 32.0f;
+    this->specularStrength = 0.6f;
 
     this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
     this->modelMatrix = glm::scale(modelMatrix, scale);
@@ -134,21 +137,36 @@ void Model::LoadModel(const std::string& modelName)
         {
             std::istringstream iss(line);
             std::string token;
-            if (iss >> token && token == "map_Kd")
+            if (iss >> token)
             {
-                std::string texName;
-                if (iss >> texName)
+                if (token == "map_Kd")
                 {
-                    std::cout << "Diffuse texture (from " << modelName << ".mtl): " << texName << std::endl;
-                    Texture tex(
-                        ("../assets/textures/" + modelName + "/" + texName).c_str(),
-                        GL_TEXTURE_2D,
-                        GL_TEXTURE0,
-                        GL_RGBA,
-                        GL_UNSIGNED_BYTE
-                    );
+                    std::string texName;
+                    if (iss >> texName)
+                    {
+                        std::cout << "Diffuse texture (from " << modelName << ".mtl): " << texName << std::endl;
+                        Texture tex(
+                            ("../assets/textures/" + modelName + "/" + texName).c_str(),
+                            GL_TEXTURE_2D,
+                            GL_TEXTURE0,
+                            GL_RGBA,
+                            GL_UNSIGNED_BYTE
+                        );
 
-                    diffuseTextures.push_back(std::move(tex));
+                        diffuseTextures.push_back(std::move(tex));
+                    }
+                }
+                else if (token == "Ns")
+                {
+                    iss >> this->shininess;
+                }
+                else if (token == "Ks")
+                {
+                    float r, g, b;
+                    if (iss >> r >> g >> b)
+                    {
+                        this->specularStrength = (r + g + b) / 3.0f;
+                    }
                 }
             }
         }
@@ -216,6 +234,9 @@ void Model::Draw(Shader& shader, Camera& camera, GLuint depthMap)
         GL_FALSE,
         glm::value_ptr(modelMatrix)
     );
+
+    glUniform1f(glGetUniformLocation(shader.ID, "shininess"), shininess);
+    glUniform1f(glGetUniformLocation(shader.ID, "specularStrength"), specularStrength);
 
     if (!diffuseTextures.empty())
     {

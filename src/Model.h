@@ -29,6 +29,9 @@ public:
     glm::vec3 rotation;     // in degrees
     glm::mat4 modelMatrix;
 
+    float shininess;
+    float specularStrength;
+
 private:
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
