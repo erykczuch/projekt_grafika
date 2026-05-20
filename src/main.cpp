@@ -53,9 +53,24 @@ const std::string nail_mod = "nail";
 const std::string plank_mod = "wooden_plank";
 const std::string garden_plane = "garden";
 const std::string hammer_mod = "hammer";
-
+int scene_num = 0;
 
 bool animation_start = false;
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    Camera* cam = static_cast<Camera*>(glfwGetWindowUserPointer(window));
+    cam->FOV -= (float)yoffset;
+    if (scene_num == 1)
+    {
+
+        if (cam->FOV < 10.0f)
+            cam->FOV = 10.0f;
+
+        if (cam->FOV > 45.0f)
+            cam->FOV = 45.0f;
+    }
+}
 
 int main()
 {
@@ -140,6 +155,9 @@ int main()
     camera.Position = glm::vec3(-17.4337, 14.9026, 21.7259);
     camera.Orientation = glm::vec3(0.33191, -0.216439, -0.91814);
 
+    glfwSetWindowUserPointer(window, &camera);
+    glfwSetScrollCallback(window, scroll_callback);
+
     float lightpos_speed = 0.1;
     float cube_anim_speed = 0.01;
 
@@ -197,10 +215,14 @@ int main()
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        handler.Inputs(window, &animation_start, can_hit);
+        handler.Inputs(window, &animation_start, can_hit, &camera.Position, &camera.Orientation, &gardenPlane.rotation.y, &scene_num);
 
         camera.Inputs(window);
-        camera.updateMatrix(45.0f, 0.1f, 200.0f);
+
+        if (scene_num == 0)
+            camera.FOV = 45.0f;
+
+        camera.updateMatrix(0.1f, 200.0f);
 
         float time = (float)glfwGetTime();
 

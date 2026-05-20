@@ -22,10 +22,11 @@ public:
 	int height;
 	float speed = 0.1f;
 	float sensitivity = 100.0f;
+	float FOV = 45.0f;
 	// Konstruktor kamery
 	Camera(int width, int height, glm::vec3 position);
 	// Aktualizuje macierz kamery
-	void updateMatrix(float FOVdeg, float nearPlane, float farPlane); //Uzupelniamy
+	void updateMatrix(float nearPlane, float farPlane); //Uzupelniamy
 		// Eksportuje macierz kamery do wybranego shadera
 		void Matrix(Shader& shader, const char* uniform); // Uzupelniamy
 	void Inputs(GLFWwindow* window);

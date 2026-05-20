@@ -5,59 +5,47 @@ Handler::Handler()
 {
 }
 
-void Handler::Inputs(GLFWwindow* window, bool* animation_start, bool can_hit)
+void Handler::Inputs(GLFWwindow* window, bool* animation_start, bool can_hit, glm::vec3* cam_pos, glm::vec3* cam_orien, float* background_rot_y, int* scene_num)
 {
 	// handles keys input
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && not_pressed)
+	// animation start
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && not_pressed_e)
 	{
-		//std::cout << "Klawisz E" << std::endl;;
 		if(can_hit)
 		{
 			*animation_start = true;
-			not_pressed = false;
+			not_pressed_e = false;
 		}
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE && !not_pressed)
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE && !not_pressed_e)
 	{
-		not_pressed = true;
+		not_pressed_e = true;
 	}
-	// handles mouse inputs
-	//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-	//{
-	//	// Hides mouse cursor
-	//	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	//	// Prevents camera from jumping on the first click
-	//	if (firstClick)
-	//	{
-	//		glfwSetCursorPos(window, (width / 2), (height / 2));
-	//		firstClick = false;
-	//	}
-	//	double mouseX;
-	//	double mouseY;
-	//	// Fetches the coordinates of the cursor
-	//	glfwGetCursorPos(window, &mouseX, &mouseY);
-	//	// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
-	//	// and then “transforms” them into degrees
-	//	float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-	//	float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
-	//	// Calculates upcoming vertical change in the Orientation
-	//	glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(- rotX), glm::normalize(glm::cross(Orientation, Up)));
-	//	// Decides whether or not the next vertical Orientation is legal or not
-	//		if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
-	//		{
-	//			Orientation = newOrientation;
-	//		}
-	//	// Rotates the Orientation left and right
-	//	Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
-	//	// Sets mouse cursor to the middle of the screen so that it doesn’t end up roaming around
-	//	glfwSetCursorPos(window, (width / 2), (height / 2));
-	//}
-	//else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
-	//{
-	//	// Unhides cursor since camera is not looking around anymore
-	//	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	//	// Makes sure the next time the camera looks around it doesn’t jump
-	//	firstClick = true;
-	//}
+
+	// camera position change
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && not_pressed_c)
+	{
+		if (*scene_num == 0)
+		{
+			*cam_pos = glm::vec3(-2.5f, 3.0f, 10.0f);
+			*cam_orien = glm::vec3(0.0, -0.1, -1.0);
+			*background_rot_y = 0.0f;
+			*scene_num = 1;
+		}
+		else
+		{
+			*cam_pos = glm::vec3(-17.4337, 14.9026, 21.7259);
+			*cam_orien = glm::vec3(0.33191, -0.216439, -0.91814);
+			*background_rot_y = -20.0f;
+			*scene_num = 0;
+		}
+		not_pressed_c = false;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE && !not_pressed_c)
+	{
+		not_pressed_c = true;
+	}
+
 }

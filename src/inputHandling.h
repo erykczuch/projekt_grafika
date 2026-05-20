@@ -16,9 +16,10 @@ public:
 	Handler();
 
 	bool firstClick = true;
-	void Inputs(GLFWwindow* window, bool*, bool);
+	void Inputs(GLFWwindow* window, bool*, bool, glm::vec3*, glm::vec3*, float*, int*);
 
 private:
-	bool not_pressed = true;
+	bool not_pressed_e = true;
+	bool not_pressed_c = true;
 };
 #endif
