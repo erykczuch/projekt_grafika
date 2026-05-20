@@ -40,6 +40,23 @@ void Model::Destroy()
     }
 }
 
+void Model::SetTextureFiltering(GLenum minFilter, GLenum magFilter)
+{
+    for (auto& tex : diffuseTextures)
+    {
+        tex.SetFiltering(minFilter, magFilter);
+    }
+}
+
+void Model::SetBlurStrength(float strength)
+{
+    // The higher the strength, the blurrier it gets by sampling smaller mipmaps.
+    for (auto& tex : diffuseTextures)
+    {
+        tex.SetBlur(strength);
+    }
+}
+
 void Model::LoadModel(const std::string& modelName)
 {
     std::string inputfile = "../assets/models/" + modelName + ".obj";

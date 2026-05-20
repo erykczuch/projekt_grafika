@@ -19,5 +19,9 @@ public:
 	void Unbind();
 	// Deletes a texture
 	void Delete();
+	// Sets texture filtering
+	void SetFiltering(GLenum minFilter, GLenum magFilter);
+	// Sets blur strength (LOD bias)
+	void SetBlur(float blurStrength);
 };
 #endif

@@ -1,5 +1,5 @@
 
 newmtl metal
-	Ns 5.000000
-	Ks 1.000000 1.000000 1.000000
+	Ns 3.000000
+	Ks 1.0 1.0 1.0
 	map_Kd metal_texture.png

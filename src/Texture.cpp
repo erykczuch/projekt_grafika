@@ -9,25 +9,28 @@ Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, 
 	glGenTextures(1, &ID);
 	glActiveTexture(slot);
 	glBindTexture(texType, ID);
-	/*Wspó³rzêdne tekstury zazwyczaj mieszcz¹ siê w zakresie od (0,0) do (1,1), ale
-	co siê stanie, jeœli podamy wspó³rzêdne poza ten zakres? Domyœlne
-	zachowanie OpenGL polega na powtarzaniu obrazów tekstury (w zasadzie ignorujemy
-	czêœæ ca³kowit¹ zmiennoprzecinkowych wspó³rzêdnych tekstury), ale
-	istnieje wiêcej opcji oferowanych przez OpenGL:*/
-	/*GL_REPEAT: Domyœlne zachowanie dla tekstur. Powtarza obraz tekstury.
-	GL_MIRRORED_REPEAT: To samo co GL_REPEAT, ale odbija obraz przy ka¿dym
-	powtórzeniu.
-	GL_CLAMP_TO_EDGE: Ogranicza wspó³rzêdne miêdzy 0 a 1. Skutkiem tego jest to, ¿e
-	wy¿sze wspó³rzêdne s¹ ograniczane do krawêdzi.
-	GL_CLAMP_TO_BORDER: Wspó³rzêdne poza zakresem otrzymuj¹ teraz okreœlony przez
-	u¿ytkownika kolor obramowania.*/
-	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-	glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	/*Filtrowanie tekstur mo¿e byæ ustawione dla operacji powiêkszania i
-	pomniejszania (przy zmianie skali w górê lub w dó³), dziêki czemu na przyk³ad
-	mo¿na u¿yæ filtrowania s¹siadów najbli¿szych, gdy tekstury s¹ zmniejszane, oraz
-	filtrowania liniowego dla tekstur powiêkszonych. Dlatego te¿ musimy
-	okreœliæ metodê filtrowania dla obu opcji za pomoc¹ glTexParameter*/
+	/*Wspï¿½rzï¿½dne tekstury zazwyczaj mieszczï¿½ siï¿½ w zakresie od (0,0) do (1,1), ale
+	co siï¿½ stanie, jeï¿½li podamy wspï¿½rzï¿½dne poza ten zakres? Domyï¿½lne
+	zachowanie OpenGL polega na powtarzaniu obrazï¿½w tekstury (w zasadzie ignorujemy
+	czï¿½ï¿½ caï¿½kowitï¿½ zmiennoprzecinkowych wspï¿½rzï¿½dnych tekstury), ale
+	istnieje wiï¿½cej opcji oferowanych przez OpenGL:*/
+	/*GL_REPEAT: Domyï¿½lne zachowanie dla tekstur. Powtarza obraz tekstury.
+	GL_MIRRORED_REPEAT: To samo co GL_REPEAT, ale odbija obraz przy kaï¿½dym
+	powtï¿½rzeniu.
+	GL_CLAMP_TO_EDGE: Ogranicza wspï¿½rzï¿½dne miï¿½dzy 0 a 1. Skutkiem tego jest to, ï¿½e
+	wyï¿½sze wspï¿½rzï¿½dne sï¿½ ograniczane do krawï¿½dzi.
+	GL_CLAMP_TO_BORDER: Wspï¿½rzï¿½dne poza zakresem otrzymujï¿½ teraz okreï¿½lony przez
+	uï¿½ytkownika kolor obramowania.*/
+	//glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	//glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	/*Filtrowanie tekstur moï¿½e byï¿½ ustawione dla operacji powiï¿½kszania i
+	pomniejszania (przy zmianie skali w gï¿½rï¿½ lub w dï¿½), dziï¿½ki czemu na przykï¿½ad
+	moï¿½na uï¿½yï¿½ filtrowania sï¿½siadï¿½w najbliï¿½szych, gdy tekstury sï¿½ zmniejszane, oraz
+	filtrowania liniowego dla tekstur powiï¿½kszonych. Dlatego teï¿½ musimy
+	okreï¿½liï¿½ metodï¿½ filtrowania dla obu opcji za pomocï¿½ glTexParameter*/
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// Dodatkowe linie dla GL_CLAMP_TO_BORDER
@@ -36,15 +39,15 @@ Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, 
 	glTexImage2D(texType, 0, GL_RGBA, widthImg, heightImg, 0, format, pixelType,
 		bytes);
 	// Mipmapy
-	/*GL_NEAREST_MIPMAP_NEAREST: wybiera najbli¿szy poziom mipmapy pasuj¹cy do
-	rozmiaru piksela i u¿ywa interpolacji najbli¿szych s¹siadów do próbkowania tekstury.
-	GL_LINEAR_MIPMAP_NEAREST: wybiera najbli¿szy poziom mipmapy i próbkuje ten
-	poziom za pomoc¹ interpolacji liniowej.
-	GL_NEAREST_MIPMAP_LINEAR: interpoluje liniowo miêdzy dwoma mipmapami, które
-	najbardziej odpowiadaj¹ rozmiarowi piksela, i próbkuje
-	poziom interpolowany za pomoc¹ interpolacji najbli¿szych s¹siadów.
-	GL_LINEAR_MIPMAP_LINEAR: interpoluje liniowo miêdzy dwoma najbli¿szymi mipmapami
-	i próbkuje poziom interpolowany za pomoc¹ interpolacji liniowej.*/
+	/*GL_NEAREST_MIPMAP_NEAREST: wybiera najbliï¿½szy poziom mipmapy pasujï¿½cy do
+	rozmiaru piksela i uï¿½ywa interpolacji najbliï¿½szych sï¿½siadï¿½w do prï¿½bkowania tekstury.
+	GL_LINEAR_MIPMAP_NEAREST: wybiera najbliï¿½szy poziom mipmapy i prï¿½bkuje ten
+	poziom za pomocï¿½ interpolacji liniowej.
+	GL_NEAREST_MIPMAP_LINEAR: interpoluje liniowo miï¿½dzy dwoma mipmapami, ktï¿½re
+	najbardziej odpowiadajï¿½ rozmiarowi piksela, i prï¿½bkuje
+	poziom interpolowany za pomocï¿½ interpolacji najbliï¿½szych sï¿½siadï¿½w.
+	GL_LINEAR_MIPMAP_LINEAR: interpoluje liniowo miï¿½dzy dwoma najbliï¿½szymi mipmapami
+	i prï¿½bkuje poziom interpolowany za pomocï¿½ interpolacji liniowej.*/
 	glGenerateMipmap(texType);
 	stbi_image_free(bytes);
 	glBindTexture(texType, 0);
@@ -66,4 +69,17 @@ void Texture::Unbind()
 void Texture::Delete()
 {
 	glDeleteTextures(1, &ID);
+}
+void Texture::SetFiltering(GLenum minFilter, GLenum magFilter)
+{
+	Bind();
+	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, magFilter);
+	Unbind();
+}
+void Texture::SetBlur(float blurStrength)
+{
+	Bind();
+	glTexParameterf(type, GL_TEXTURE_LOD_BIAS, blurStrength);
+	Unbind();
 }

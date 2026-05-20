@@ -23,6 +23,8 @@ public:
     void Draw(Shader& shader, Camera& camera, GLuint depthMap);
     void DrawDepth(Shader& shadowMapShader);
     void Destroy();
+    void SetTextureFiltering(GLenum minFilter, GLenum magFilter);
+    void SetBlurStrength(float strength);
 
     glm::vec3 position;
     glm::vec3 scale;

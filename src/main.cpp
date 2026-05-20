@@ -53,6 +53,9 @@ const std::string nail_mod = "nail";
 const std::string plank_mod = "wooden_plank";
 const std::string garden_plane = "garden";
 const std::string hammer_mod = "hammer";
+const std::string blocker_mod = "blocker";
+const std::string garden_plane_front = "garden_front";
+
 int scene_num = 0;
 
 bool animation_start = false;
@@ -96,10 +99,16 @@ int main()
     Model nailModel[2] = { Model(nail_mod, glm::vec3(-2.5f, 1.0f, 0.0f)), Model(nail_mod, glm::vec3(30.0f, 1.0f, 0.0f)) };  // two nails
     Model plankModel(plank_mod, glm::vec3(0.0f, -1.0f, 0.0f));                                                              // wooden plank
     Model gardenPlane(garden_plane, glm::vec3(20.0f, -18.0f, -80.0f), glm::vec3(2.2f, 2.2f, 1.0f));         			    // garden background
+    Model gardenPlaneFront(garden_plane_front, glm::vec3(24.0f, -18.0f, -50.0f), glm::vec3(10.2f, 1.0f, 9.2f));         	    // garden background front part
     Model hammerModel(hammer_mod, glm::vec3(-2.5f, 4.35f, -15.0f));         			                                    // hammmer
 
     plankModel.scale = glm::vec3(2.0f, 1.0f, 1.1f);
     gardenPlane.rotation.y = -20.0f;
+    gardenPlane.SetTextureFiltering(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    gardenPlane.SetBlurStrength(1.5f);
+
+    gardenPlaneFront.rotation.x = 90.0f;
+    gardenPlaneFront.rotation.z = 20.0f;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -208,7 +217,7 @@ int main()
     // Adjustable variables for shadow range and viewing boundaries
     float shadow_range = 25.0f;
     float near_plane = 1.0f;
-    float far_plane = 75.0f;
+    float far_plane = 100.0f;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -216,6 +225,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         handler.Inputs(window, &animation_start, can_hit, &camera.Position, &camera.Orientation, &gardenPlane.rotation.y, &scene_num);
+        gardenPlaneFront.rotation.z = -gardenPlane.rotation.y;
 
         camera.Inputs(window);
 
@@ -226,11 +236,11 @@ int main()
 
         float time = (float)glfwGetTime();
 
-        float radius = -20.0f;
+        float radius = 10.0f;
         glm::vec3 lightPos;
-        lightPos.y = 6 + sin(-time * light_speed) * radius;
-        lightPos.z = 4 + 0.5f;
-        lightPos.x = -2.5 + cos(-time * light_speed) * radius;
+        lightPos.x = -4.5 + sin(-time * light_speed) * radius;
+        lightPos.y = 24 + 0.5f;
+        lightPos.z = 0 + cos(-time * light_speed) * radius;
 
         glm::mat4 model = glm::mat4(1.0f);
 
@@ -257,10 +267,12 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_FRONT);
 
+
         nailModel[0].DrawDepth(shadowMapShader);
         nailModel[1].DrawDepth(shadowMapShader);
         plankModel.DrawDepth(shadowMapShader);
         gardenPlane.DrawDepth(shadowMapShader);
+        gardenPlaneFront.DrawDepth(shadowMapShader);
         hammerModel.DrawDepth(shadowMapShader);
 
         glCullFace(GL_BACK);
@@ -358,6 +370,7 @@ int main()
 
         // garden
         gardenPlane.Draw(shaderProgram, camera, depthMap);
+        gardenPlaneFront.Draw(shaderProgram, camera, depthMap);
 
         // hammer
         hammerModel.Draw(shaderProgram, camera, depthMap);
@@ -432,6 +445,7 @@ int main()
         }
 
         hammerModel.rotation.x += hammer_speed;
+
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
 
@@ -451,6 +465,7 @@ int main()
     nailModel[1].Destroy();
     plankModel.Destroy();
     gardenPlane.Destroy();
+    gardenPlaneFront.Destroy();
     hammerModel.Destroy();
 
     shaderProgram.Delete();

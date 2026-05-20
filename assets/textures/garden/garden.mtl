@@ -2,6 +2,6 @@
 # Material Count: 1
 
 newmtl color_15277357.001
-	Ns 0.000000
+	Ns 100000.000000
 	Ks 0.000000 0.000000 0.000000
 	map_Kd garden.png
