@@ -3,9 +3,11 @@
 #include <fstream>
 #include <sstream>
 
+// enabling TinyObjLoader implementation
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobjloader/tiny_obj_loader.h"
 
+// initializing transform values, material settings, loading the model data
 Model::Model(const std::string& modelName, const glm::vec3& position, const glm::vec3& scale)
 {
     this->position = position;
@@ -17,8 +19,11 @@ Model::Model(const std::string& modelName, const glm::vec3& position, const glm:
 
     this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
     this->modelMatrix = glm::scale(modelMatrix, scale);
-    
+
+    // load mesh data from OBJ file
     LoadModel(modelName);
+
+    // create VAO/VBO and configure vertex attributes
     SetupMesh();
 }
 
@@ -26,6 +31,7 @@ Model::~Model()
 {
 }
 
+// frees GPU resources and prevents dangling pointers
 void Model::Destroy()
 {
     if (vao) {
@@ -40,6 +46,7 @@ void Model::Destroy()
     }
 }
 
+// changes texture filtering settings
 void Model::SetTextureFiltering(GLenum minFilter, GLenum magFilter)
 {
     for (auto& tex : diffuseTextures)
@@ -50,13 +57,14 @@ void Model::SetTextureFiltering(GLenum minFilter, GLenum magFilter)
 
 void Model::SetBlurStrength(float strength)
 {
-    // The higher the strength, the blurrier it gets by sampling smaller mipmaps.
+    // the higher the strength the blurrier it gets, by sampling smaller mipmaps
     for (auto& tex : diffuseTextures)
     {
         tex.SetBlur(strength);
     }
 }
 
+// loads geometry and material data from OBJ and MTL files
 void Model::LoadModel(const std::string& modelName)
 {
     std::string inputfile = "../assets/models/" + modelName + ".obj";
@@ -65,6 +73,7 @@ void Model::LoadModel(const std::string& modelName)
 
     tinyobj::ObjReader reader;
 
+    // analyzing OBJ file
     if (!reader.ParseFromFile(inputfile, reader_config)) {
         if (!reader.Error().empty()) {
             std::cerr << "TinyObjReader: " << reader.Error();
@@ -72,6 +81,7 @@ void Model::LoadModel(const std::string& modelName)
         exit(1);
     }
 
+    // printing any warnings
     if (!reader.Warning().empty()) {
         std::cout << "TinyObjReader: " << reader.Warning();
     }
@@ -80,10 +90,12 @@ void Model::LoadModel(const std::string& modelName)
     auto& shapes = reader.GetShapes();
     auto& materials = reader.GetMaterials();
 
+    // process each mesh shape
     for (const auto& shape : shapes)
     {
         size_t index_offset = 0;
 
+        // iterate through all faces in the mesh
         for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); f++)
         {
             size_t fv = shape.mesh.num_face_vertices[f];
@@ -115,6 +127,7 @@ void Model::LoadModel(const std::string& modelName)
                 glm::vec3 pos = facePos[v];
                 glm::vec2 uv(0.0f);
 
+                // read texture coordinates from OBJ file
                 if (idx.texcoord_index >= 0)
                 {
                     uv = glm::vec2(
@@ -127,24 +140,30 @@ void Model::LoadModel(const std::string& modelName)
                 vertices.push_back(pos.x);
                 vertices.push_back(pos.y);
                 vertices.push_back(pos.z);
-                // color
+
+                // color (white)
                 vertices.push_back(1.0f);
                 vertices.push_back(1.0f);
                 vertices.push_back(1.0f);
-                // uv
+
+                // texture coordinates
                 vertices.push_back(uv.x);
                 vertices.push_back(uv.y);
+
                 // normal
                 vertices.push_back(normal.x);
                 vertices.push_back(normal.y);
                 vertices.push_back(normal.z);
 
+                // store vertex index
                 indices.push_back(static_cast<unsigned int>(index_offset + v));
             }
+            // move offset to the next face
             index_offset += fv;
         }
     }
 
+    // loading additional data from MTL file
     std::string mtlPath = "../assets/textures/" + modelName + "/" + modelName + ".mtl";
     std::ifstream mtlFile(mtlPath);
     if (mtlFile.is_open())
@@ -156,6 +175,7 @@ void Model::LoadModel(const std::string& modelName)
             std::string token;
             if (iss >> token)
             {
+                // diffuse map texture
                 if (token == "map_Kd")
                 {
                     std::string texName;
@@ -173,10 +193,12 @@ void Model::LoadModel(const std::string& modelName)
                         diffuseTextures.push_back(std::move(tex));
                     }
                 }
+                // shininess intensity
                 else if (token == "Ns")
                 {
                     iss >> this->shininess;
                 }
+                //  specular reflection color and intensity
                 else if (token == "Ks")
                 {
                     float r, g, b;
@@ -190,6 +212,7 @@ void Model::LoadModel(const std::string& modelName)
     }
 }
 
+// creates VAO/VBO and configures vertex attribute layout
 void Model::SetupMesh()
 {
     vao = new VAO();
@@ -206,6 +229,7 @@ void Model::SetupMesh()
     vbo->Unbind();
 }
 
+// renders the model into the shadow depth map
 void Model::DrawDepth(Shader& shadowMapShader)
 {
     modelMatrix = glm::mat4(1.0f);
@@ -230,11 +254,12 @@ void Model::DrawDepth(Shader& shadowMapShader)
     vao->Unbind();
 }
 
+// main rendering with textures, lighting, and shadows
 void Model::Draw(Shader& shader, Camera& camera, GLuint depthMap)
 {
     shader.Activate();
 
-    // Update model matrix from current position
+    // update model about position, rotation and scale
     modelMatrix = glm::mat4(1.0f);
 
     modelMatrix = glm::translate(modelMatrix, position);
@@ -245,6 +270,7 @@ void Model::Draw(Shader& shader, Camera& camera, GLuint depthMap)
 
     modelMatrix = glm::scale(modelMatrix, scale);
 
+    // upload model matrix to shader
     glUniformMatrix4fv(
         glGetUniformLocation(shader.ID, "model"),
         1,
@@ -264,6 +290,7 @@ void Model::Draw(Shader& shader, Camera& camera, GLuint depthMap)
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, depthMap);
 
+    // draw model geometry
     vao->Bind();
     glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 11);
     vao->Unbind();

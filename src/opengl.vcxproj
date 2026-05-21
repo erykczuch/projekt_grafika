@@ -142,7 +142,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="cube.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="inputHandling.cpp" />
@@ -156,7 +155,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="cube.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="inputHandling.h" />
     <ClInclude Include="Model.h" />

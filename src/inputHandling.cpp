@@ -5,9 +5,9 @@ Handler::Handler()
 {
 }
 
+// handles keys inputs
 void Handler::Inputs(GLFWwindow* window, bool* animation_start, bool can_hit, glm::vec3* cam_pos, glm::vec3* cam_orien, float* background_rot_y, int* scene_num)
 {
-	// handles keys input
 	// animation start
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && not_pressed_e)
 	{
@@ -18,6 +18,7 @@ void Handler::Inputs(GLFWwindow* window, bool* animation_start, bool can_hit, gl
 		}
 	}
 
+	// prevents the key from being pressed twice
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE && !not_pressed_e)
 	{
 		not_pressed_e = true;
@@ -43,6 +44,7 @@ void Handler::Inputs(GLFWwindow* window, bool* animation_start, bool can_hit, gl
 		not_pressed_c = false;
 	}
 
+	// prevents the key from being pressed twice
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE && !not_pressed_c)
 	{
 		not_pressed_c = true;

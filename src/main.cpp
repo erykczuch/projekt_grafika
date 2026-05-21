@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -9,7 +8,6 @@
 #include "EBO.h"
 #include "Camera.h"
 #include "Texture.h"
-#include "cube.h"
 #include "Model.h"
 #include "inputHandling.h"
 
@@ -17,8 +15,10 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
 
-int width = 800;
-int height = 480;
+// height and width of the window
+int width = 1300;
+int height = 860;
+
 
 GLfloat lightVertices[] =
 {    // COORDINATES //
@@ -48,28 +48,27 @@ GLuint lightIndices[] =
     4, 6, 7
 };
 
-// model / texture folder name
+// model and texture folder name
 const std::string nail_mod = "nail";
 const std::string plank_mod = "wooden_plank";
 const std::string garden_plane = "garden";
 const std::string hammer_mod = "hammer";
-const std::string blocker_mod = "blocker";
 const std::string garden_plane_front = "garden_front";
 
 int scene_num = 0;
 
-bool animation_start = false;
-
+// scroll detector, used to zoom in and out by changing the FOV of the camera
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     Camera* cam = static_cast<Camera*>(glfwGetWindowUserPointer(window));
     cam->FOV -= (float)yoffset;
     if (scene_num == 1)
     {
-
+        // min FOV value of 10
         if (cam->FOV < 10.0f)
             cam->FOV = 10.0f;
 
+        // max FOV value of 45
         if (cam->FOV > 45.0f)
             cam->FOV = 45.0f;
     }
@@ -77,6 +76,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
+	// initializing GLFW and creating window
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -95,14 +95,14 @@ int main()
     glViewport(0, 0, width, height);
 
 
-    // objects
+    // creating objects (position, scale)
     Model nailModel[2] = { Model(nail_mod, glm::vec3(-2.5f, 1.0f, 0.0f)), Model(nail_mod, glm::vec3(30.0f, 1.0f, 0.0f)) };  // two nails
-    Model plankModel(plank_mod, glm::vec3(0.0f, -1.0f, 0.0f));                                                              // wooden plank
+    Model plankModel(plank_mod, glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(2.0f, 1.0f, 1.1f));                                 // wooden plank
     Model gardenPlane(garden_plane, glm::vec3(20.0f, -18.0f, -80.0f), glm::vec3(2.2f, 2.2f, 1.0f));         			    // garden background
-    Model gardenPlaneFront(garden_plane_front, glm::vec3(24.0f, -18.0f, -50.0f), glm::vec3(10.2f, 1.0f, 9.2f));         	    // garden background front part
+    Model gardenPlaneFront(garden_plane_front, glm::vec3(24.0f, -18.0f, -50.0f), glm::vec3(10.2f, 1.0f, 9.2f));         	// garden background front part
     Model hammerModel(hammer_mod, glm::vec3(-2.5f, 4.35f, -15.0f));         			                                    // hammmer
 
-    plankModel.scale = glm::vec3(2.0f, 1.0f, 1.1f);
+    // applying different transformations to the objects (rotation and blur)
     gardenPlane.rotation.y = -20.0f;
     gardenPlane.SetTextureFiltering(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
     gardenPlane.SetBlurStrength(1.5f);
@@ -110,11 +110,13 @@ int main()
     gardenPlaneFront.rotation.x = 90.0f;
     gardenPlaneFront.rotation.z = 20.0f;
 
+	// enabling depth test and backface culling, only the outwards facing triangles will be drawn
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+	// creating shaders and sending data to the shaders
     Shader shaderProgram("default.vert", "default.frag");
 
     Shader lightShader("light.vert", "light.frag");
@@ -129,34 +131,20 @@ int main()
     lightVBO.Unbind();
     lightEBO.Unbind();
 
-    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);       // light color 
-    glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-    glm::mat4 lightModel = glm::mat4(1.0f);
-
-    lightModel = glm::translate(lightModel, lightPos);
-
-    glm::vec3 cubePos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::mat4 cubeModel = glm::mat4(1.0f);
-
-    cubeModel = glm::translate(cubeModel, cubePos);
+    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
     lightShader.Activate();
-    glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1,
-        GL_FALSE, glm::value_ptr(lightModel));
     glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x,
         lightColor.y, lightColor.z, lightColor.w);
 
     shaderProgram.Activate();
-    glUniform1i(glGetUniformLocation(shaderProgram.ID, "tex0"), 0);
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1,
-        GL_FALSE, glm::value_ptr(cubeModel));
     glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"),
         lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x,
-        lightPos.y, lightPos.z);
 
+    // creates an object that handles the keyboard interactions
     Handler handler;
 
+	// creating a camera object, setting its position and orientation
     Camera camera(width, height, glm::vec3(0.0f, 3.0f, 12.0f));
     glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"),
         camera.Position.x, camera.Position.y, camera.Position.z);
@@ -167,13 +155,7 @@ int main()
     glfwSetWindowUserPointer(window, &camera);
     glfwSetScrollCallback(window, scroll_callback);
 
-    float lightpos_speed = 0.1;
-    float cube_anim_speed = 0.01;
-
-    lightPos.x = -20.0;
-    lightPos.y = 2.0;
-    lightPos.z = 0.0;
-
+	// creating shaders and framebuffer for shadow mapping
     Shader shadowMapShader("shadowMap.vert", "shadowMap.frag");
 
     const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
@@ -200,40 +182,51 @@ int main()
     shaderProgram.Activate();
     glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 1);
 
+	// variables used for the animations
+    bool animation_start = false;
+
     float light_speed = 0.01;
-    float nail_speed = 0.0;
-    bool stop_anim_help[3] = { true, true, true };
-    float plank_tex_offset = 0.0;
-    float plank_speed = 0.0;
+
     int nail_num1 = 0;
     int nail_num2 = 1;
-    float hammer_speed = 0.0;
+    float nail_speed = 0.0;
+    bool stop_nail_anim[3] = { true, true, true };
     bool nail_anim_start = false;
+
+    float plank_tex_offset = 0.0;
+    float plank_speed = 0.0;
+    bool plank_moving = false;
+
+    float hammer_speed = 0.0;
     bool hammer_anim_stop = false;
     int hit_num = 0;
     bool can_hit = true;
-    bool plank_moving = false;
-
-    // Adjustable variables for shadow range and viewing boundaries
+    
+    // variables setting the shadow range and viewing boundaries
     float shadow_range = 25.0f;
     float near_plane = 1.0f;
     float far_plane = 100.0f;
 
     while (!glfwWindowShouldClose(window))
     {
+		// setting a background color and clearing the back and depth buffer
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// handling the inputs
         handler.Inputs(window, &animation_start, can_hit, &camera.Position, &camera.Orientation, &gardenPlane.rotation.y, &scene_num);
         gardenPlaneFront.rotation.z = -gardenPlane.rotation.y;
 
-        camera.Inputs(window);
 
+        // setting the FOV to 45 whenever its the first scene (no ability to zoom there)
         if (scene_num == 0)
             camera.FOV = 45.0f;
 
+        // updating the camera matrix and sending it to the shader
+        //camera.Inputs(window);        // no camera movement
         camera.updateMatrix(0.1f, 200.0f);
 
+        // light object animation, circular movement
         float time = (float)glfwGetTime();
 
         float radius = 10.0f;
@@ -242,17 +235,9 @@ int main()
         lightPos.y = 24 + 0.5f;
         lightPos.z = 0 + cos(-time * light_speed) * radius;
 
-        glm::mat4 model = glm::mat4(1.0f);
-
-        // 1. render depth of scene to texture (from light's perspective)
+        // rendering depth of scene to texture (from lights perspective)
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
-
-        // Allow changing shadow range using left and right arrow keys
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            shadow_range += 0.5f;
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            shadow_range -= 0.5f;
 
         lightProjection = glm::ortho(-shadow_range, shadow_range, -shadow_range, shadow_range, near_plane, far_plane);
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -260,14 +245,13 @@ int main()
 
         shadowMapShader.Activate();
         glUniformMatrix4fv(glGetUniformLocation(shadowMapShader.ID, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(shadowMapShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_FRONT);
 
-
+		// drawing the objects to the depth map
         nailModel[0].DrawDepth(shadowMapShader);
         nailModel[1].DrawDepth(shadowMapShader);
         plankModel.DrawDepth(shadowMapShader);
@@ -278,13 +262,14 @@ int main()
         glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // 2. render scene as normal using the generated depth/shadow map  
+        // rendering scene as normal using the generated depth/shadow map
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shaderProgram.Activate();
         camera.Matrix(shaderProgram, "camMatrix");
 
+		// sending the camera and light position to the shader
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"),
             camera.Position.x, camera.Position.y, camera.Position.z);
 
@@ -295,50 +280,51 @@ int main()
 
         glUniform2f(glGetUniformLocation(shaderProgram.ID, "texOffset"), 0.0f, 0.0f);
 
-        // nails
+
+        // nails section
         nailModel[0].Draw(shaderProgram, camera, depthMap);
         nailModel[1].Draw(shaderProgram, camera, depthMap);
 
 
-        // hitting the nail animation
+        // animation of nails getting hit
         if (nail_anim_start)
             nail_speed = -0.5;
-        if (nailModel[nail_num1].position.y <= 0 && stop_anim_help[0])
+        if (nailModel[nail_num1].position.y <= 0 && stop_nail_anim[0])
         {
             nail_speed = 0.0;
             nail_anim_start = false;
-            stop_anim_help[0] = false;
+            stop_nail_anim[0] = false;
         }
-        if (nailModel[nail_num1].position.y <= -1.5 && stop_anim_help[1])
+        if (nailModel[nail_num1].position.y <= -1.5 && stop_nail_anim[1])
         {
             nail_speed = 0.0;
             nail_anim_start = false;
-            stop_anim_help[1] = false;
+            stop_nail_anim[1] = false;
         }
-        if (nailModel[nail_num1].position.y <= -3.4 && stop_anim_help[2])
+        if (nailModel[nail_num1].position.y <= -3.4 && stop_nail_anim[2])
         {
             nail_speed = 0.0;
             nail_anim_start = false;
-            stop_anim_help[2] = false;
+            stop_nail_anim[2] = false;
         }
 
-        if (!stop_anim_help[0] && !stop_anim_help[1] && !stop_anim_help[2])
+        if (!stop_nail_anim[0] && !stop_nail_anim[1] && !stop_nail_anim[2])
         {
-            stop_anim_help[0] = true;
-            stop_anim_help[1] = true;
-            stop_anim_help[2] = true;
+            stop_nail_anim[0] = true;
+            stop_nail_anim[1] = true;
+            stop_nail_anim[2] = true;
         }
 
         nailModel[nail_num1].position.y += nail_speed;
 
         float nail_last_pos = nailModel[nail_num2].position.x;
 
-        // nail moving animation + wooden plank animation speed
+        // nail moving animation + setting the plank speed
         if (nailModel[nail_num1].position.y <= -3.4 && nailModel[nail_num2].position.x >= -2.5)
         {
-            nailModel[nail_num1].position.x -= 0.1;
-            nailModel[nail_num2].position.x -= 0.1;
-            plank_speed = 0.00095;
+            nailModel[nail_num1].position.x -= 0.18;
+            nailModel[nail_num2].position.x -= 0.18;
+            plank_speed = 0.00171;
             plank_moving = true;
         }
 
@@ -350,32 +336,33 @@ int main()
             nail_num1 = nail_num2;
             nail_num2 = nail_change_num;
             plank_moving = false;
-            //hit_num = -1;
         }
 
-        // wooden plank
 
+        // wooden plank section
 		// plank texture animation
-        if(abs(nail_last_pos - nailModel[nail_num2].position.x) == 0)
+        if(fabs(nail_last_pos - nailModel[nail_num2].position.x) <= 0.0001f)
             plank_speed = 0.0;
-
 
         plank_tex_offset += plank_speed;
 
-        glUniform2f(glGetUniformLocation(shaderProgram.ID, "texOffset"), plank_tex_offset, 0.0f); // texture animation
+        glUniform2f(glGetUniformLocation(shaderProgram.ID, "texOffset"), plank_tex_offset, 0.0f);
 
         plankModel.Draw(shaderProgram, camera, depthMap);
-        glUniform2f(glGetUniformLocation(shaderProgram.ID, "texOffset"), 0.0f, 0.0f); // prevents affecting other objects
+
+        // prevents affecting other objects
+        glUniform2f(glGetUniformLocation(shaderProgram.ID, "texOffset"), 0.0f, 0.0f);
 
 
-        // garden
+        // garden section
         gardenPlane.Draw(shaderProgram, camera, depthMap);
         gardenPlaneFront.Draw(shaderProgram, camera, depthMap);
 
-        // hammer
+
+        // hammer section
         hammerModel.Draw(shaderProgram, camera, depthMap);
         
-
+        // hitting animation
         if (animation_start && can_hit)
         {
             hammer_speed = 1.6;
@@ -446,6 +433,7 @@ int main()
 
         hammerModel.rotation.x += hammer_speed;
 
+		// light source rendering
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
 
@@ -455,12 +443,14 @@ int main()
             1, GL_FALSE, glm::value_ptr(lightModel));
 
         lightVAO.Bind();
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		// drawing light source for debugging purposes
+        //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+	// destroying created objects and shaders
     nailModel[0].Destroy();
     nailModel[1].Destroy();
     plankModel.Destroy();
